@@ -14,7 +14,7 @@ WORKDIR /fortune-api
 
 COPY . .
 
-RUN cargo build --release
+RUN cargo build --locked --release
 
 # Minimal runtime stage using Chainguard's secure glibc image
 FROM cgr.dev/chainguard/glibc-dynamic:latest AS runtime
@@ -25,5 +25,7 @@ COPY --from=db-builder /tmp/database.sqlite .
 COPY --from=builder /fortune-api/target/release/fortune-api .
 
 ENV DATABASE_PATH=./database.sqlite
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8000
 
 CMD ["./fortune-api"]
