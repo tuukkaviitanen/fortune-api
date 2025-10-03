@@ -36,7 +36,7 @@ RUN cargo build --locked
 
 COPY --from=db-builder /tmp/database.sqlite .
 
-ENV DATABASE_PATH=./database.sqlite
+ENV DATABASE_URL=sqlite://./database.sqlite
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8000
 

@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=db-builder /tmp/database.sqlite .
 COPY --from=builder /app/target/release/fortune-api .
 
-ENV DATABASE_PATH=./database.sqlite
+ENV DATABASE_URL=sqlite://./database.sqlite
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8000
 
