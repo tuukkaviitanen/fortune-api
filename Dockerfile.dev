@@ -1,0 +1,43 @@
+# Database builder stage for initializing and populating the SQLite database
+FROM keinos/sqlite3:3.50.4 AS db-builder
+
+WORKDIR /tmp
+
+COPY ./fortunes.csv ./
+
+RUN sqlite3 database.sqlite 'CREATE TABLE fortunes(fortune TEXT);' \
+    && sqlite3 database.sqlite '.import fortunes.csv fortunes --csv'
+
+FROM rust:1.90.0 AS builder
+
+WORKDIR /app
+
+# Install binstall for faster cargo installs
+RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+
+# Install bacon for live reload
+RUN cargo binstall bacon
+
+# Include just the Cargo.toml and Cargo.lock files first to cache dependencies
+COPY Cargo.toml Cargo.lock ./
+
+# Create a dummy project structure to build dependencies
+RUN mkdir src && echo "fn main() {println!(\"dummy\");}" > src/main.rs
+RUN cargo build --locked
+
+# Remove the dummy binary and source, but keep dependency artifacts
+RUN rm target/debug/fortune-api* && rm -rf src
+
+COPY . .
+
+# The key: update timestamps to force source recompilation
+RUN find src -name "*.rs" -exec touch {} \;
+RUN cargo build --locked
+
+COPY --from=db-builder /tmp/database.sqlite .
+
+ENV DATABASE_PATH=./database.sqlite
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8000
+
+CMD ["bacon", "--headless", "--watch", "./src/", "run-long"]

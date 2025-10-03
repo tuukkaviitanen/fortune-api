@@ -10,7 +10,7 @@ RUN sqlite3 database.sqlite 'CREATE TABLE fortunes(fortune TEXT);' \
 
 FROM rust:1.90.0 AS builder
 
-WORKDIR /fortune-api
+WORKDIR /app
 
 COPY . .
 
@@ -22,7 +22,7 @@ FROM cgr.dev/chainguard/glibc-dynamic:latest AS runtime
 WORKDIR /app
 
 COPY --from=db-builder /tmp/database.sqlite .
-COPY --from=builder /fortune-api/target/release/fortune-api .
+COPY --from=builder /app/target/release/fortune-api .
 
 ENV DATABASE_PATH=./database.sqlite
 ENV ROCKET_ADDRESS=0.0.0.0

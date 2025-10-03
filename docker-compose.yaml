@@ -1,6 +1,6 @@
+name: fortune-api
 services:
   app:
     build: .
-    container_name: fortune-api
     ports:
       - "8000:8000"
