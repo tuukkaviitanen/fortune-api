@@ -5,8 +5,9 @@ WORKDIR /tmp
 
 COPY ./fortunes.csv ./
 
-RUN sqlite3 database.sqlite 'CREATE TABLE fortunes(fortune TEXT);' \
-    && sqlite3 database.sqlite '.import fortunes.csv fortunes --csv'
+RUN sqlite3 database.sqlite 'CREATE TABLE fortunes(fortune TEXT NOT NULL, id INTEGER PRIMARY KEY);' \
+    && sqlite3 database.sqlite '.separator "|"' \
+    && sqlite3 database.sqlite '.import fortunes.csv fortunes'
 
 FROM rust:1.90.0 AS builder
 

@@ -1,0 +1,8 @@
+### Get all fortunes
+GET http://localhost:8000
+
+### Get a specific fortune
+GET http://localhost:8000/100
+
+### Get a non-existing fortune
+GET http://localhost:8000/200
